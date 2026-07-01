@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaSun } from 'react-icons/fa';
 import { LuSunrise, LuSunset } from 'react-icons/lu';
 
@@ -20,14 +20,32 @@ const calculateSunProgress = (sunrise: number, sunset: number): number => {
   const totalDay = sunsetMs - sunriseMs;
   const elapsed = now - sunriseMs;
 
-  return parseFloat(((elapsed / totalDay) * 100).toFixed(2));
+  return Number(((elapsed / totalDay) * 100).toFixed(2));
 };
 
 const SunPosition = ({ sunrise, sunset }: SunPositionProps) => {
   const [dayProgress, setDayProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [sunriseText, setSunriseText] = useState('');
+  const [sunsetText, setSunsetText] = useState('');
 
   useEffect(() => {
+    setSunriseText(
+      new Date(sunrise * 1000).toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      })
+    );
+
+    setSunsetText(
+      new Date(sunset * 1000).toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      })
+    );
+
     const update = () => {
       setCurrentTime(new Date());
       setDayProgress(calculateSunProgress(sunrise, sunset));
@@ -38,10 +56,7 @@ const SunPosition = ({ sunrise, sunset }: SunPositionProps) => {
     const interval = setInterval(update, 1000);
 
     return () => clearInterval(interval);
-  }, [sunrise, sunset]);
-
-  const sunriseTime = new Date(sunrise * 1000);
-  const sunsetTime = new Date(sunset * 1000);
+    }, [sunrise, sunset]);
 
   return (
     <section className="w-full max-w-md mx-auto">
@@ -53,13 +68,18 @@ const SunPosition = ({ sunrise, sunset }: SunPositionProps) => {
         }}
       >
         {/* Digital Clock */}
-        <div className="text-center text-lg md:text-2xl font-bold mb-4">
-          {currentTime.toLocaleTimeString('en-IN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true,
-          })}
+        <div
+          className="text-center text-lg md:text-2xl font-bold mb-4"
+          suppressHydrationWarning
+        >
+          {currentTime
+            ? currentTime.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+              })
+            : '--:--:--'}
         </div>
 
         {/* Sunrise / Sunset */}
@@ -98,20 +118,12 @@ const SunPosition = ({ sunrise, sunset }: SunPositionProps) => {
 
         {/* Time Labels */}
         <div className="flex justify-between font-medium uppercase text-sm md:text-base">
-          <span>
-            {sunriseTime.toLocaleTimeString('en-IN', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true,
-            })}
+          <span suppressHydrationWarning>
+            {sunriseText || '--:--'}
           </span>
 
-          <span>
-            {sunsetTime.toLocaleTimeString('en-IN', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true,
-            })}
+          <span suppressHydrationWarning>
+            {sunsetText || '--:--'}
           </span>
         </div>
       </div>
