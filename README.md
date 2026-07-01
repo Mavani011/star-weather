@@ -36,7 +36,7 @@ Ensure you have the following installed:
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/devxprite/star-weather.git
+    git clone https://github.com/Mavani011/star-weather.git
     cd star-weather
     ```
 
