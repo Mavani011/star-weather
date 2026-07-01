@@ -101,13 +101,13 @@ const SearchBar = () => {
         .then(data => {
           const all = data.data || [];
           const filtered = all.filter((city: City) => !/district|township/i.test(city.city));
-          const formatted = filtered.map((c, i) => ({
+          const formatted = filtered.map((c: City, i: number) => ({
             ...c,
             id: i,
             city: `${c.city}, ${c.countryCode.toUpperCase()}`
           }));
 
-          formatted.sort((a, b) => {
+          formatted.sort((a: City, b: City) => {
             if (a.countryCode === 'IN' && b.countryCode !== 'IN') return -1;
             if (a.countryCode !== 'IN' && b.countryCode === 'IN') return 1;
             return 0;
@@ -118,7 +118,7 @@ const SearchBar = () => {
           setActiveIndex(-1);
           setNotFound(formatted.length === 0);
         })
-        .catch(() => {
+        .catch((err: unknown) => {   console.error(err);
           setSuggestions([]);
           setActiveIndex(-1);
           setNotFound(true);
@@ -146,7 +146,7 @@ const SearchBar = () => {
                 setNotFound(true);
                 router.push(`/?q=`); // Clear query if city not found
               }
-            } catch (err) {
+            } catch (err: unknown) {
               console.error('Error reverse geocoding:', err);
               setNotFound(true);
               router.push(`/?q=`); // Clear query on error
@@ -154,7 +154,7 @@ const SearchBar = () => {
               setIsLocating(false);
             }
           },
-          (err) => {
+          (err: GeolocationPositionError) => {
          
             console.warn('Geolocation Error:', err);
             setIsLocating(false);
@@ -244,23 +244,28 @@ const SearchBar = () => {
           setNotFound(true);
           router.push(`/?q=`);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         setNotFound(true);
         router.push(`/?q=`);
         console.error('Error reverse geocoding:', err); 
       } finally {
         setIsLocating(false); // Clear loading state
       }
-    }, (err) => {
-        console.warn('Geolocation manual request error:', err);
-        setIsLocating(false); 
-        if (err.code === err.PERMISSION_DENIED) {
-             errorMsg = 'Location access denied. Please allow location in your browser settings to use this feature.';
-        } else if (err.code === err.TIMEOUT) {
-            errorMsg = 'Getting location timed out. Please try again.';
-        }
-        alert(errorMsg); 
-    });
+    },(err) => {
+  console.warn('Geolocation manual request error:', err);
+  setIsLocating(false);
+
+  let errorMsg = 'Unable to get your location.';
+
+  if (err.code === err.PERMISSION_DENIED) {
+    errorMsg =
+      'Location access denied. Please allow location in your browser settings.';
+  } else if (err.code === err.TIMEOUT) {
+    errorMsg = 'Getting location timed out. Please try again.';
+  }
+
+  alert(errorMsg);
+});
   };
 
   return (
