@@ -122,10 +122,14 @@ const OverView: React.FC<OverViewProps> = ({ data, city }) => {
   const condition = data?.weather?.[0]?.main || 'Default';
   const isRain = ['Rain', 'Drizzle', 'Thunderstorm'].includes(condition);
 
-  const gradient = weatherGradients[condition] || weatherGradients.Default;
-  const backgroundGif = isRain
-    ? '/rainy.gif'
-    : weatherBackgrounds[condition] || weatherBackgrounds.Default;
+const gradient =
+  weatherGradients[condition as keyof typeof weatherGradients] ??
+  weatherGradients.Default;
+
+const backgroundGif = isRain
+  ? '/rainy.gif'
+  : weatherBackgrounds[condition as keyof typeof weatherBackgrounds] ??
+    weatherBackgrounds.Default;
 
   const countryName = city?.country ? countryNames[city.country] || city.country : '';
   const flagEmoji = city?.country ? getFlagEmoji(city.country) : '';
